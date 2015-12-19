@@ -1,0 +1,32 @@
+--track0:ïù px,0,2000,100
+--track1:çÇÇ≥ px,0,2000,100
+--track2:â°à íu %,0,100,0
+--track3:ècà íu %,0,100,0
+
+winw = obj.track0
+winh = obj.track1
+xofff = obj.track2 / 100
+yofff = obj.track3 / 100
+
+imgw = obj.w
+imgh = obj.h
+
+tx1 = (imgw - winw) * xofff
+tx2 = (imgw - winw) * xofff + winw
+ty1 = (imgh - winh) * yofff
+ty2 = (imgh - winh) * yofff + winh
+
+obj.setoption("dst", "tmp", winw, winh)
+
+obj.effect()
+obj.drawpoly(
+  -winw / 2, -winh / 2, 0,
+  winw / 2, -winh / 2, 0,
+  winw / 2, winh / 2, 0,
+  -winw / 2, winh / 2, 0,
+  tx1, ty1,
+  tx2, ty1,
+  tx2, ty2,
+  tx1, ty2)
+
+obj.load("tempbuffer")

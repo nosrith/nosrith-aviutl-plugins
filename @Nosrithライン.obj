@@ -1,0 +1,128 @@
+@点線
+--track0:頂点数,2,16,2,1
+--track1:長さ %,0,100,100
+--track2:太さ px,0,100,4
+--track3:間隔 px,0,1000,20
+--dialog:ベジエ曲線/chk,bezier=0;アンカー,anchors={-50,0,50,0};色/col,color=0x000000;塗り長さ %,filllenfc=50;
+
+require("line")
+
+numanc = obj.track0
+obj.setanchor("anchors", numanc, "line")
+obj.setoption("dst", "tmp", obj.screen_w, obj.screen_h)
+
+obj.load("figure", "四角形", color, 2)
+conf = {
+  glenf = obj.track1 / 100,
+  width = obj.track2,
+  patlen = obj.track3,
+  filllenf = filllenfc / 100,
+  bezier = bezier
+}
+line.draw(obj, anchors, conf)
+
+obj.load("tempbuffer")
+
+
+@矢印線
+--track0:頂点数,2,16,2,1
+--track1:長さ %,0,100,100
+--track2:太さ px,0,100,4
+--track3:大きさ %,0,1000,350,1
+--dialog:ベジエ曲線/chk,bezier=0;アンカー,anchors={-50,0,50,0};色/col,color=0x000000;パターン長さ px,patlen=0;塗り長さ %,filllenfc=50;
+
+require("line")
+
+numanc = obj.track0
+obj.setanchor("anchors", numanc, "line")
+obj.setoption("dst", "tmp", obj.screen_w, obj.screen_h)
+
+obj.load("figure", "四角形", color, 2)
+conf = {
+  glenf = obj.track1 / 100,
+  width = obj.track2,
+  patlen = patlen,
+  filllenf = filllenfc / 100,
+  bezier = bezier
+}
+s = line.draw(obj, anchors, conf)
+
+if conf.glenf > 0 then
+  hsize = obj.track2 * obj.track3 / 100
+  angle = math.deg(math.atan2(s.dx, -s.dy))
+  obj.load("figure", "三角形", color, hsize)
+  obj.draw(s.x, s.y, 0, 1, 1, 0, 0, angle)
+end
+
+obj.load("tempbuffer")
+
+
+@道路線
+--track0:頂点数,2,16,2,1
+--track1:長さ %,0,100,100
+--track2:太さ px,0,100,5
+--dialog:ベジエ曲線/chk,bezier=0;アンカー,anchors={-50,0,50,0};色/col,color=0x404040;エッジ太さ %,edgewidthfc=15;中抜き濃さ %,offcolfc=10;
+
+require("line")
+
+numanc = obj.track0
+obj.setanchor("anchors", numanc, "line")
+obj.setoption("dst", "tmp", obj.screen_w, obj.screen_h)
+
+obj.load("figure", "四角形", color, 2)
+conf = {
+  glenf = obj.track1 / 100,
+  width = obj.track2 * (1 + edgewidthfc / 100 * 2),
+  bezier = bezier
+}
+line.draw(obj, anchors, conf)
+
+h, s, v = HSV(color)
+s = s * offcolfc / 100
+v = 100 - offcolfc * (100 - v) / 100
+obj.load("figure", "四角形", HSV(h, s, v), 2)
+conf = {
+  glenf = obj.track1 / 100,
+  width = obj.track2 * (1 - edgewidthfc / 100),
+  bezier = bezier
+}
+line.draw(obj, anchors, conf)
+
+obj.load("tempbuffer")
+
+@鉄道線(JR)
+--track0:頂点数,2,16,2,1
+--track1:長さ %,0,100,100
+--track2:太さ px,0,100,5
+--track3:間隔 px,0,1000,40
+--dialog:ベジエ曲線/chk,bezier=0;アンカー,anchors={-50,0,50,0};色/col,color=0x404040;エッジ太さ %,edgewidthfc=15;中抜き濃さ %,offcolfc=10;塗り長さ %,filllenfc=50;
+
+require("line")
+
+numanc = obj.track0
+obj.setanchor("anchors", numanc, "line")
+obj.setoption("dst", "tmp", obj.screen_w, obj.screen_h)
+
+obj.load("figure", "四角形", color, 2)
+conf = {
+  glenf = obj.track1 / 100,
+  width = obj.track2 * (1 + edgewidthfc / 100 * 2),
+  bezier = bezier
+}
+line.draw(obj, anchors, conf)
+
+h, s, v = HSV(color)
+s = s * offcolfc / 100
+v = 100 - offcolfc * (100 - v) / 100
+obj.load("figure", "四角形", HSV(h, s, v), 2)
+conf = {
+  glenf = obj.track1 / 100,
+  width =  obj.track2 * (1 - edgewidthfc / 100),
+  patlen = obj.track3,
+  filllenf = 1 - filllenfc / 100,  
+  pposf = filllenfc / 100,
+  bezier = bezier
+}
+line.draw(obj, anchors, conf)
+
+obj.load("tempbuffer")
