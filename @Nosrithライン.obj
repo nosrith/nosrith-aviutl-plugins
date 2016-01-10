@@ -3,7 +3,7 @@
 --track1:長さ %,0,100,100
 --track2:太さ px,0,100,4
 --track3:間隔 px,0,1000,20
---dialog:ベジエ曲線/chk,bezier=0;アンカー,anchors={-50,0,50,0};色/col,color=0x000000;塗り長さ %,filllenfc=50;
+--dialog:アンカー,anchors={-50,0,50,0};ベジエ曲線/chk,bezier=0;移動平均曲線/chk,mvav=0;移動平均半径 px,mvavlen=50;色/col,color=0x000000;塗り長さ %,filllenfc=50;
 
 pathlib = require("path")
 
@@ -17,7 +17,9 @@ conf = {
   width = obj.track2,
   patlen = obj.track3,
   filllenf = filllenfc / 100,
-  bezier = bezier
+  bezier = bezier,
+  mvav = mvav,
+  mvavlen = mvavlen
 }
 pathlib.draw(obj, anchors, conf)
 
@@ -29,7 +31,7 @@ obj.load("tempbuffer")
 --track1:長さ %,0,100,100
 --track2:太さ px,0,100,4
 --track3:大きさ %,0,1000,350,1
---dialog:ベジエ曲線/chk,bezier=0;アンカー,anchors={-50,0,50,0};色/col,color=0x000000;パターン長さ px,patlen=0;塗り長さ %,filllenfc=50;
+--dialog:アンカー,anchors={-50,0,50,0};ベジエ曲線/chk,bezier=0;移動平均曲線/chk,mvav=0;移動平均半径 px,mvavlen=50;色/col,color=0x000000;パターン長さ px,patlen=0;塗り長さ %,filllenfc=50;
 
 pathlib = require("path")
 
@@ -43,7 +45,9 @@ conf = {
   width = obj.track2,
   patlen = patlen,
   filllenf = filllenfc / 100,
-  bezier = bezier
+  bezier = bezier,
+  mvav = mvav,
+  mvavlen = mvavlen
 }
 path = pathlib.draw(obj, anchors, conf)
 
@@ -63,7 +67,7 @@ obj.load("tempbuffer")
 --track0:頂点数,2,16,2,1
 --track1:長さ %,0,100,100
 --track2:太さ px,0,100,5
---dialog:ベジエ曲線/chk,bezier=0;アンカー,anchors={-50,0,50,0};色/col,color=0x404040;エッジ太さ %,edgewidthfc=15;中抜き濃さ %,offcolfc=10;
+--dialog:アンカー,anchors={-50,0,50,0};ベジエ曲線/chk,bezier=0;移動平均曲線/chk,mvav=0;移動平均半径 px,mvavlen=50;色/col,color=0x404040;エッジ太さ %,edgewidthfc=15;中抜き濃さ %,offcolfc=10;
 
 pathlib = require("path")
 
@@ -75,7 +79,9 @@ obj.load("figure", "四角形", color, 2)
 conf = {
   glenf = obj.track1 / 100,
   width = obj.track2 * (1 + edgewidthfc / 100 * 2),
-  bezier = bezier
+  bezier = bezier,
+  mvav = mvav,
+  mvavlen = mvavlen
 }
 pathlib.draw(obj, anchors, conf)
 
@@ -86,7 +92,9 @@ obj.load("figure", "四角形", HSV(h, s, v), 2)
 conf = {
   glenf = obj.track1 / 100,
   width = obj.track2 * (1 - edgewidthfc / 100),
-  bezier = bezier
+  bezier = bezier,
+  mvav = mvav,
+  mvavlen = mvavlen
 }
 pathlib.draw(obj, anchors, conf)
 
@@ -97,7 +105,7 @@ obj.load("tempbuffer")
 --track1:長さ %,0,100,100
 --track2:太さ px,0,100,5
 --track3:間隔 px,0,1000,40
---dialog:ベジエ曲線/chk,bezier=0;アンカー,anchors={-50,0,50,0};色/col,color=0x404040;エッジ太さ %,edgewidthfc=15;中抜き濃さ %,offcolfc=10;塗り長さ %,filllenfc=50;
+--dialog:アンカー,anchors={-50,0,50,0};ベジエ曲線/chk,bezier=0;移動平均曲線/chk,mvav=0;移動平均半径 px,mvavlen=50;色/col,color=0x404040;エッジ太さ %,edgewidthfc=15;中抜き濃さ %,offcolfc=10;塗り長さ %,filllenfc=50;
 
 pathlib = require("path")
 
@@ -109,7 +117,9 @@ obj.load("figure", "四角形", color, 2)
 conf = {
   glenf = obj.track1 / 100,
   width = obj.track2 * (1 + edgewidthfc / 100 * 2),
-  bezier = bezier
+  bezier = bezier,
+  mvav = mvav,
+  mvavlen = mvavlen
 }
 pathlib.draw(obj, anchors, conf)
 
@@ -123,7 +133,9 @@ conf = {
   patlen = obj.track3,
   filllenf = 1 - filllenfc / 100,  
   pposf = filllenfc / 100,
-  bezier = bezier
+  bezier = bezier,
+  mvav = mvav,
+  mvavlen = mvavlen
 }
 pathlib.draw(obj, anchors, conf)
 
