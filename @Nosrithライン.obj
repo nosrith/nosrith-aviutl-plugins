@@ -5,7 +5,7 @@
 --track3:間隔 px,0,1000,20
 --dialog:ベジエ曲線/chk,bezier=0;アンカー,anchors={-50,0,50,0};色/col,color=0x000000;塗り長さ %,filllenfc=50;
 
-require("line")
+pathlib = require("path")
 
 numanc = obj.track0
 obj.setanchor("anchors", numanc, "line")
@@ -19,7 +19,7 @@ conf = {
   filllenf = filllenfc / 100,
   bezier = bezier
 }
-line.draw(obj, anchors, conf)
+pathlib.draw(obj, anchors, conf)
 
 obj.load("tempbuffer")
 
@@ -31,7 +31,7 @@ obj.load("tempbuffer")
 --track3:大きさ %,0,1000,350,1
 --dialog:ベジエ曲線/chk,bezier=0;アンカー,anchors={-50,0,50,0};色/col,color=0x000000;パターン長さ px,patlen=0;塗り長さ %,filllenfc=50;
 
-require("line")
+pathlib = require("path")
 
 numanc = obj.track0
 obj.setanchor("anchors", numanc, "line")
@@ -45,13 +45,15 @@ conf = {
   filllenf = filllenfc / 100,
   bezier = bezier
 }
-s = line.draw(obj, anchors, conf)
+path = pathlib.draw(obj, anchors, conf)
 
 if conf.glenf > 0 then
   hsize = obj.track2 * obj.track3 / 100
-  angle = math.deg(math.atan2(s.dx, -s.dy))
+  sx1, sy1, sx2, sy2 = pathlib.getseg(path.ancs, path.numanc - 1)
+  slen, sdx, sdy = pathlib.getd(sx1, sy1, sx2, sy2)
+  angle = math.deg(math.atan2(sdx, -sdy))
   obj.load("figure", "三角形", color, hsize)
-  obj.draw(s.x, s.y, 0, 1, 1, 0, 0, angle)
+  obj.draw(sx2, sy2, 0, 1, 1, 0, 0, angle)
 end
 
 obj.load("tempbuffer")
@@ -63,7 +65,7 @@ obj.load("tempbuffer")
 --track2:太さ px,0,100,5
 --dialog:ベジエ曲線/chk,bezier=0;アンカー,anchors={-50,0,50,0};色/col,color=0x404040;エッジ太さ %,edgewidthfc=15;中抜き濃さ %,offcolfc=10;
 
-require("line")
+pathlib = require("path")
 
 numanc = obj.track0
 obj.setanchor("anchors", numanc, "line")
@@ -75,7 +77,7 @@ conf = {
   width = obj.track2 * (1 + edgewidthfc / 100 * 2),
   bezier = bezier
 }
-line.draw(obj, anchors, conf)
+pathlib.draw(obj, anchors, conf)
 
 h, s, v = HSV(color)
 s = s * offcolfc / 100
@@ -86,7 +88,7 @@ conf = {
   width = obj.track2 * (1 - edgewidthfc / 100),
   bezier = bezier
 }
-line.draw(obj, anchors, conf)
+pathlib.draw(obj, anchors, conf)
 
 obj.load("tempbuffer")
 
@@ -97,7 +99,7 @@ obj.load("tempbuffer")
 --track3:間隔 px,0,1000,40
 --dialog:ベジエ曲線/chk,bezier=0;アンカー,anchors={-50,0,50,0};色/col,color=0x404040;エッジ太さ %,edgewidthfc=15;中抜き濃さ %,offcolfc=10;塗り長さ %,filllenfc=50;
 
-require("line")
+pathlib = require("path")
 
 numanc = obj.track0
 obj.setanchor("anchors", numanc, "line")
@@ -109,7 +111,7 @@ conf = {
   width = obj.track2 * (1 + edgewidthfc / 100 * 2),
   bezier = bezier
 }
-line.draw(obj, anchors, conf)
+pathlib.draw(obj, anchors, conf)
 
 h, s, v = HSV(color)
 s = s * offcolfc / 100
@@ -123,6 +125,6 @@ conf = {
   pposf = filllenfc / 100,
   bezier = bezier
 }
-line.draw(obj, anchors, conf)
+pathlib.draw(obj, anchors, conf)
 
 obj.load("tempbuffer")
