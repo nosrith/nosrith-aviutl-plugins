@@ -2,7 +2,7 @@ module(..., package.seeall)
 
 -- Utilities
 
-function getseg(t, i)
+function getsegpt(t, i)
   return t[i * 2 - 1], t[i * 2], t[i * 2 + 1], t[i * 2 + 2]
 end
 
@@ -23,22 +23,19 @@ function getlen(anchors)
   local numanc = #anchors / 2
   local sumslen = 0
   for i = 1, numanc - 1 do
-    sumslen = sumslen + getd(getseg(anchors, i))
+    sumslen = sumslen + getd(getsegpt(anchors, i))
   end
   return sumslen
 end  
 
 -- Path
 
-function polypath(anchors, len)
-  if not len then
-    len = 0
-    local numanc = #anchors / 2
-    for i = 1, numanc - 1 do
-      len = len + getd(getseg(anchors, i))
-    end
+function polypath(anchors)
+  local newancs = {}
+  for _, v in ipairs(anchors) do
+    newancs[#newancs + 1] = v
   end
-  return {ancs = anchors, numanc = #anchors / 2, len = len}
+  return Path:new(newancs)
 end
 
 function subpath(path, beginf, endf)
@@ -49,7 +46,7 @@ function subpath(path, beginf, endf)
   local contains = false
   local sx1, sy1, sx2, sy2, slen, sdx, sdy
   for i = 1, path.numanc - 1 do
-    sx1, sy1, sx2, sy2 = getseg(path.ancs, i)
+    sx1, sy1, sx2, sy2 = path:getsegpt(i)
     slen, sdx, sdy = getd(sx1, sy1, sx2, sy2)
     if not contains then
       if pos + slen > beginpos then
@@ -77,7 +74,7 @@ function subpath(path, beginf, endf)
   local plen = endpos - pos
   newancs[#newancs + 1] = sx1 + plen * sdx / slen
   newancs[#newancs + 1] = sy1 + plen * sdy / slen
-  return polypath(newancs)
+  return Path:new(newancs)
 end  
 
 -- Bezier path
@@ -113,23 +110,24 @@ function bezierpath(anchors)
     newancs[#newancs + 1] = x
     newancs[#newancs + 1] = y
   end
-  return polypath(newancs)
+  return Path:new(newancs)
 end
 
 -- Average path
 
-function mvavpath(anchors, avlen)
+function mvavpath(anchors, radius)
+  if radius == 0 then return polypath(anchors) end
   local numanc = #anchors / 2
   local len = getlen(anchors)
   local newancs = {}
   for i = 0, math.ceil(len) do
     local gpos = math.min(i, len)
-    local beginpos = gpos - avlen / 2
-    local endpos = gpos + avlen / 2
+    local beginpos = gpos - radius
+    local endpos = gpos + radius
     local sumx, sumy = 0, 0
     local pos = 0
     for i = 1, numanc - 1 do
-      local sx1, sy1, sx2, sy2 = getseg(anchors, i)
+      local sx1, sy1, sx2, sy2 = getsegpt(anchors, i)
       local slen, sdx, sdy = getd(sx1, sy1, sx2, sy2)
       if slen > 0 then
         local bspos = math.min(beginpos - pos, slen)
@@ -145,48 +143,64 @@ function mvavpath(anchors, avlen)
         pos = pos + slen
       end
     end
-    newancs[#newancs + 1] = sumx / avlen
-    newancs[#newancs + 1] = sumy / avlen
+    newancs[#newancs + 1] = sumx / (radius * 2)
+    newancs[#newancs + 1] = sumy / (radius * 2)
   end
-  return polypath(newancs)
+  return Path:new(newancs)
 end
 
 -- Get point xy by fraction
 
-function getpt(path, frac, move)
-  local tarpos = path.len * frac
+Path = {}
+Path_mt = {__index = Path}
+
+function Path:new(anchors)
+  local o = {
+    ancs = anchors, 
+    numanc = #anchors / 2, 
+    len = getlen(anchors),
+    dx = anchors[#anchors - 1] - anchors[1],
+    dy = anchors[#anchors] - anchors[2]
+  }
+  return setmetatable(o, Path_mt)
+end
+
+function Path:getsegpt(i)
+  return getsegpt(self.ancs, i)
+end
+
+function Path:getpt(frac)
+  local tarpos = self.len * frac
   local pos = 0, sx1, sy1, sx2, sy2, slen, sdx, sdy
-  for i = 1, path.numanc - 1 do
-    sx1, sy1, sx2, sy2 = getseg(path.ancs, i)
+  for i = 1, self.numanc - 1 do
+    sx1, sy1, sx2, sy2 = self:getsegpt(i)
     slen, sdx, sdy = getd(sx1, sy1, sx2, sy2)
     if pos + slen >= tarpos then break end
     pos = pos + slen
   end
   local plen = tarpos - pos
-  return sx1 + plen * sdx / slen, sy1 + plen * sdy / slen
+  return sx1 + plen * sdx / slen, sy1 + plen * sdy / slen, sdx, sdy
 end
 
--- Draw
-
-function draw(obj, path, conf)
+function Path:draw(obj, conf)
   local width = conf.width or 1
   local patlen = conf.patlen or 0
   local filllen = conf.filllen or ((conf.filllenf or 0) * patlen)
   local ppos = conf.ppos or (conf.pposf or 0) * patlen
 
   local gpos = 0
-  for i = 1, path.numanc - 1 do
-    if gpos >= path.len then break end
+  for i = 1, self.numanc - 1 do
+    if gpos >= self.len then break end
 
-    local sx1, sy1, sx2, sy2 = getseg(path.ancs, i)
+    local sx1, sy1, sx2, sy2 = self:getsegpt(i)
     local slen, sdx, sdy = getd(sx1, sy1, sx2, sy2)
     local ux, uy = getuxy(sx1, sy1, sx2, sy2, width / 2)
     local sfx, sfy = sdx / slen, sdy / slen
 
     if i > 1 and (patlen == 0 or ppos < filllen) then
       -- draw corner
-      local sx0 = path.ancs[(i - 1) * 2 - 1]
-      local sy0 = path.ancs[(i - 1) * 2]
+      local sx0 = self.ancs[(i - 1) * 2 - 1]
+      local sy0 = self.ancs[(i - 1) * 2]
       local ux0, uy0 = getuxy(sx0, sy0, sx1, sy1, width / 2)
       obj.drawpoly(
         sx1, sy1, 0,
@@ -203,8 +217,8 @@ function draw(obj, path, conf)
     if patlen == 0 then
       -- draw straight line
       local d = slen
-      if gpos + d >= path.len then
-        d = path.len - gpos
+      if gpos + d >= self.len then
+        d = self.len - gpos
         sx2 = sx1 + d * sfx
         sy2 = sy1 + d * sfy
       end
@@ -222,11 +236,11 @@ function draw(obj, path, conf)
     else
       -- draw patterned line iteratively
       local spos = 0
-      while spos < slen and gpos < path.len do
+      while spos < slen and gpos < self.len do
         if ppos < filllen then
           local d = filllen - ppos
           if spos + d >= slen then d = slen - spos end
-          if gpos + d >= path.len then d = path.len - gpos end
+          if gpos + d >= self.len then d = self.len - gpos end
           local adj = 1
           local x1 = sx1 + (spos - adj) * sfx
           local y1 = sy1 + (spos - adj) * sfy
@@ -245,11 +259,11 @@ function draw(obj, path, conf)
           ppos = ppos + d
           spos = slen
           gpos = gpos + d
-        elseif gpos + d >= path.len then
-          d = path.len - gpos
+        elseif gpos + d >= self.len then
+          d = self.len - gpos
           ppos = ppos + d
           spos = spos + d
-          gpos = path.len
+          gpos = self.len
         else
           ppos = 0
           spos = spos + d
@@ -258,5 +272,17 @@ function draw(obj, path, conf)
       end
     end
   end
-  return path
+  return self
+end
+
+-- Register
+
+local regtb = {}
+
+function register(name, path)
+  regtb[name] = path
+end
+
+function getregpath(name)
+  return regtb[name]
 end
