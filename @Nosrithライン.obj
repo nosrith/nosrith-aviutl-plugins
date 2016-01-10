@@ -5,23 +5,28 @@
 --track3:間隔 px,0,1000,20
 --dialog:アンカー,anchors={-50,0,50,0};ベジエ曲線/chk,bezier=0;移動平均曲線/chk,mvav=0;移動平均半径 px,mvavlen=50;色/col,color=0x000000;塗り長さ %,filllenfc=50;
 
-pathlib = require("path")
+local pathlib = require("path")
 
-numanc = obj.track0
+local numanc = obj.track0
 obj.setanchor("anchors", numanc, "line")
 obj.setoption("dst", "tmp", obj.screen_w, obj.screen_h)
 
 obj.load("figure", "四角形", color, 2)
-conf = {
-  glenf = obj.track1 / 100,
+local path
+if bezier and bezier ~= 0 then
+  path = pathlib.bezierpath(anchors)
+elseif mvav and mvav ~= 0 then
+  path = pathlib.mvavpath(anchors, mvavlen)
+else
+  path = pathlib.polypath(anchors)
+end
+path = pathlib.subpath(path, 0, obj.track1 / 100)
+local conf = {
   width = obj.track2,
   patlen = obj.track3,
-  filllenf = filllenfc / 100,
-  bezier = bezier,
-  mvav = mvav,
-  mvavlen = mvavlen
+  filllenf = filllenfc / 100
 }
-pathlib.draw(obj, anchors, conf)
+pathlib.draw(obj, path, conf)
 
 obj.load("tempbuffer")
 
@@ -33,29 +38,34 @@ obj.load("tempbuffer")
 --track3:大きさ %,0,1000,350,1
 --dialog:アンカー,anchors={-50,0,50,0};ベジエ曲線/chk,bezier=0;移動平均曲線/chk,mvav=0;移動平均半径 px,mvavlen=50;色/col,color=0x000000;パターン長さ px,patlen=0;塗り長さ %,filllenfc=50;
 
-pathlib = require("path")
+local pathlib = require("path")
 
-numanc = obj.track0
+local numanc = obj.track0
 obj.setanchor("anchors", numanc, "line")
 obj.setoption("dst", "tmp", obj.screen_w, obj.screen_h)
 
 obj.load("figure", "四角形", color, 2)
-conf = {
-  glenf = obj.track1 / 100,
+local path
+if bezier and bezier ~= 0 then
+  path = pathlib.bezierpath(anchors)
+elseif mvav and mvav ~= 0 then
+  path = pathlib.mvavpath(anchors, mvavlen)
+else
+  path = pathlib.polypath(anchors)
+end
+path = pathlib.subpath(path, 0, obj.track1 / 100)
+local conf = {
   width = obj.track2,
   patlen = patlen,
-  filllenf = filllenfc / 100,
-  bezier = bezier,
-  mvav = mvav,
-  mvavlen = mvavlen
+  filllenf = filllenfc / 100
 }
-path = pathlib.draw(obj, anchors, conf)
+path = pathlib.draw(obj, path, conf)
 
-if conf.glenf > 0 then
-  hsize = obj.track2 * obj.track3 / 100
-  sx1, sy1, sx2, sy2 = pathlib.getseg(path.ancs, path.numanc - 1)
-  slen, sdx, sdy = pathlib.getd(sx1, sy1, sx2, sy2)
-  angle = math.deg(math.atan2(sdx, -sdy))
+if obj.track1 > 0 then
+  local hsize = obj.track2 * obj.track3 / 100
+  local sx1, sy1, sx2, sy2 = pathlib.getseg(path.ancs, path.numanc - 1)
+  local slen, sdx, sdy = pathlib.getd(sx1, sy1, sx2, sy2)
+  local angle = math.deg(math.atan2(sdx, -sdy))
   obj.load("figure", "三角形", color, hsize)
   obj.draw(sx2, sy2, 0, 1, 1, 0, 0, angle)
 end
@@ -69,34 +79,35 @@ obj.load("tempbuffer")
 --track2:太さ px,0,100,5
 --dialog:アンカー,anchors={-50,0,50,0};ベジエ曲線/chk,bezier=0;移動平均曲線/chk,mvav=0;移動平均半径 px,mvavlen=50;色/col,color=0x404040;エッジ太さ %,edgewidthfc=15;中抜き濃さ %,offcolfc=10;
 
-pathlib = require("path")
+local pathlib = require("path")
 
-numanc = obj.track0
+local numanc = obj.track0
 obj.setanchor("anchors", numanc, "line")
 obj.setoption("dst", "tmp", obj.screen_w, obj.screen_h)
 
 obj.load("figure", "四角形", color, 2)
-conf = {
-  glenf = obj.track1 / 100,
-  width = obj.track2 * (1 + edgewidthfc / 100 * 2),
-  bezier = bezier,
-  mvav = mvav,
-  mvavlen = mvavlen
+local path
+if bezier and bezier ~= 0 then
+  path = pathlib.bezierpath(anchors)
+elseif mvav and mvav ~= 0 then
+  path = pathlib.mvavpath(anchors, mvavlen)
+else
+  path = pathlib.polypath(anchors)
+end
+path = pathlib.subpath(path, 0, obj.track1 / 100)
+local conf = {
+  width = obj.track2 * (1 + edgewidthfc / 100 * 2)
 }
-pathlib.draw(obj, anchors, conf)
+pathlib.draw(obj, path, conf)
 
-h, s, v = HSV(color)
+local h, s, v = HSV(color)
 s = s * offcolfc / 100
 v = 100 - offcolfc * (100 - v) / 100
 obj.load("figure", "四角形", HSV(h, s, v), 2)
 conf = {
-  glenf = obj.track1 / 100,
-  width = obj.track2 * (1 - edgewidthfc / 100),
-  bezier = bezier,
-  mvav = mvav,
-  mvavlen = mvavlen
+  width = obj.track2 * (1 - edgewidthfc / 100)
 }
-pathlib.draw(obj, anchors, conf)
+pathlib.draw(obj, path, conf)
 
 obj.load("tempbuffer")
 
@@ -107,36 +118,37 @@ obj.load("tempbuffer")
 --track3:間隔 px,0,1000,40
 --dialog:アンカー,anchors={-50,0,50,0};ベジエ曲線/chk,bezier=0;移動平均曲線/chk,mvav=0;移動平均半径 px,mvavlen=50;色/col,color=0x404040;エッジ太さ %,edgewidthfc=15;中抜き濃さ %,offcolfc=10;塗り長さ %,filllenfc=50;
 
-pathlib = require("path")
+local pathlib = require("path")
 
-numanc = obj.track0
+local numanc = obj.track0
 obj.setanchor("anchors", numanc, "line")
 obj.setoption("dst", "tmp", obj.screen_w, obj.screen_h)
 
 obj.load("figure", "四角形", color, 2)
-conf = {
-  glenf = obj.track1 / 100,
-  width = obj.track2 * (1 + edgewidthfc / 100 * 2),
-  bezier = bezier,
-  mvav = mvav,
-  mvavlen = mvavlen
+local path
+if bezier and bezier ~= 0 then
+  path = pathlib.bezierpath(anchors)
+elseif mvav and mvav ~= 0 then
+  path = pathlib.mvavpath(anchors, mvavlen)
+else
+  path = pathlib.polypath(anchors)
+end
+path = pathlib.subpath(path, 0, obj.track1 / 100)
+local conf = {
+  width = obj.track2 * (1 + edgewidthfc / 100 * 2)
 }
-pathlib.draw(obj, anchors, conf)
+pathlib.draw(obj, path, conf)
 
-h, s, v = HSV(color)
+local h, s, v = HSV(color)
 s = s * offcolfc / 100
 v = 100 - offcolfc * (100 - v) / 100
 obj.load("figure", "四角形", HSV(h, s, v), 2)
 conf = {
-  glenf = obj.track1 / 100,
   width =  obj.track2 * (1 - edgewidthfc / 100),
   patlen = obj.track3,
   filllenf = 1 - filllenfc / 100,  
   pposf = filllenfc / 100,
-  bezier = bezier,
-  mvav = mvav,
-  mvavlen = mvavlen
 }
-pathlib.draw(obj, anchors, conf)
+pathlib.draw(obj, path, conf)
 
 obj.load("tempbuffer")

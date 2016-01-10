@@ -168,27 +168,11 @@ end
 
 -- Draw
 
-function draw(obj, anchors, conf)
-  local glenf = conf.glenf or 1
+function draw(obj, path, conf)
   local width = conf.width or 1
   local patlen = conf.patlen or 0
   local filllen = conf.filllen or ((conf.filllenf or 0) * patlen)
   local ppos = conf.ppos or (conf.pposf or 0) * patlen
-  local bezier = conf.bezier and conf.bezier ~= 0
-  local mvav = conf.mvav and conf.mvav ~= 0
-  local mvavlen = conf.mvavlen or 0
-
-  local path
-  if bezier then
-    path = bezierpath(anchors)
-  elseif mvav then
-    path = mvavpath(anchors, mvavlen)
-  else
-    path = polypath(anchors)
-  end
-  if glenf ~= 1 then
-    path = subpath(path, 0, glenf)
-  end
 
   local gpos = 0
   for i = 1, path.numanc - 1 do
@@ -224,7 +208,7 @@ function draw(obj, anchors, conf)
         sx2 = sx1 + d * sfx
         sy2 = sy1 + d * sfy
       end
-      local adj = bezier and 1 or 0
+      local adj = 1
       local x1 = sx1 - adj * sfx
       local y1 = sy1 - adj * sfy
       local x2 = sx2 + adj * sfx
@@ -243,7 +227,7 @@ function draw(obj, anchors, conf)
           local d = filllen - ppos
           if spos + d >= slen then d = slen - spos end
           if gpos + d >= path.len then d = path.len - gpos end
-          local adj = bezier and 1 or 0
+          local adj = 1
           local x1 = sx1 + (spos - adj) * sfx
           local y1 = sy1 + (spos - adj) * sfy
           local x2 = sx1 + (spos + adj + d) * sfx
