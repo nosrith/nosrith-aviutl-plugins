@@ -19,6 +19,15 @@ function getuxy(x1, y1, x2, y2, f)
   return -dy / d * f, dx / d * f
 end
 
+function getlen(anchors)
+  local numanc = #anchors / 2
+  local sumslen = 0
+  for i = 1, numanc - 1 do
+    sumslen = sumslen + getd(getseg(anchors, i))
+  end
+  return sumslen
+end  
+
 -- Path
 
 function polypath(anchors, len)
@@ -51,7 +60,7 @@ function subpath(path, beginf, endf)
       end
     end
     if contains then
-      if pos + slen >= endpos then
+      if pos + slen >= endpos or i == path.numanc - 1 then
         break
       else
         newancs[#newancs + 1] = sx2
@@ -96,30 +105,58 @@ function bezierpt(t, anchors)
 end
 
 function bezierpath(anchors)
-  local numanc = #anchors / 2
-  local sumslen = 0
-  for i = 1, numanc - 1 do
-    sumslen = sumslen + getd(getseg(anchors, i))
-  end
-  sumslen = math.floor(sumslen)
-  
+  local numnewseg = math.floor(getlen(anchors))  
   local newancs = {}
-  for i = 0, sumslen do
-    local t = i / sumslen
+  for i = 0, numnewseg do
+    local t = i / numnewseg
     local x, y = bezierpt(t, anchors)
     newancs[#newancs + 1] = x
     newancs[#newancs + 1] = y
   end
+  return polypath(newancs)
+end
 
+-- Average path
+
+function mvavpath(anchors, avlen)
+  local numanc = #anchors / 2
+  local len = getlen(anchors)
+  local newancs = {}
+  for i = 0, math.ceil(len) do
+    local gpos = math.min(i, len)
+    local beginpos = gpos - avlen / 2
+    local endpos = gpos + avlen / 2
+    local sumx, sumy = 0, 0
+    local pos = 0
+    for i = 1, numanc - 1 do
+      local sx1, sy1, sx2, sy2 = getseg(anchors, i)
+      local slen, sdx, sdy = getd(sx1, sy1, sx2, sy2)
+      if slen > 0 then
+        local bspos = math.min(beginpos - pos, slen)
+        local espos = math.max(endpos - pos, 0)
+        if i > 1 then bspos = math.max(bspos, 0) end
+        if i < numanc - 1 then espos = math.min(espos, slen) end
+        local x1 = sx1 + bspos * sdx / slen
+        local y1 = sy1 + bspos * sdy / slen
+        local x2 = sx1 + espos * sdx / slen
+        local y2 = sy1 + espos * sdy / slen
+        sumx = sumx + ((x1 + x2) / 2) * (espos - bspos)
+        sumy = sumy + ((y1 + y2) / 2) * (espos - bspos)
+        pos = pos + slen
+      end
+    end
+    newancs[#newancs + 1] = sumx / avlen
+    newancs[#newancs + 1] = sumy / avlen
+  end
   return polypath(newancs)
 end
 
 -- Get point xy by fraction
 
-function getpt(path, frac)
+function getpt(path, frac, move)
   local tarpos = path.len * frac
   local pos = 0, sx1, sy1, sx2, sy2, slen, sdx, sdy
-  for i = 1, path.numanc do
+  for i = 1, path.numanc - 1 do
     sx1, sy1, sx2, sy2 = getseg(path.ancs, i)
     slen, sdx, sdy = getd(sx1, sy1, sx2, sy2)
     if pos + slen >= tarpos then break end
@@ -131,23 +168,11 @@ end
 
 -- Draw
 
-function draw(obj, anchors, conf)
-  local glenf = conf.glenf or 1
+function draw(obj, path, conf)
   local width = conf.width or 1
   local patlen = conf.patlen or 0
   local filllen = conf.filllen or ((conf.filllenf or 0) * patlen)
   local ppos = conf.ppos or (conf.pposf or 0) * patlen
-  local bezier = conf.bezier and conf.bezier ~= 0
-
-  local path
-  if bezier then
-    path = bezierpath(anchors)
-  else
-    path = polypath(anchors)
-  end
-  if glenf ~= 1 then
-    path = subpath(path, 0, glenf)
-  end
 
   local gpos = 0
   for i = 1, path.numanc - 1 do
@@ -183,7 +208,7 @@ function draw(obj, anchors, conf)
         sx2 = sx1 + d * sfx
         sy2 = sy1 + d * sfy
       end
-      local adj = bezier and 1 or 0
+      local adj = 1
       local x1 = sx1 - adj * sfx
       local y1 = sy1 - adj * sfy
       local x2 = sx2 + adj * sfx
@@ -202,7 +227,7 @@ function draw(obj, anchors, conf)
           local d = filllen - ppos
           if spos + d >= slen then d = slen - spos end
           if gpos + d >= path.len then d = path.len - gpos end
-          local adj = bezier and 1 or 0
+          local adj = 1
           local x1 = sx1 + (spos - adj) * sfx
           local y1 = sy1 + (spos - adj) * sfy
           local x2 = sx1 + (spos + adj + d) * sfx
