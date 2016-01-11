@@ -20,7 +20,7 @@ elseif mvav and mvav ~= 0 then
 else
   path = pathlib.polypath(anchors)
 end
-path = pathlib.subpath(path, 0, obj.track1 / 100)
+path = pathlib.subpathf(path, 0, obj.track1 / 100)
 local conf = {
   width = obj.track2,
   patlen = obj.track3,
@@ -54,7 +54,7 @@ elseif mvav and mvav ~= 0 then
 else
   path = pathlib.polypath(anchors)
 end
-path = pathlib.subpath(path, 0, obj.track1 / 100)
+path = pathlib.subpathf(path, 0, obj.track1 / 100)
 local conf = {
   width = obj.track2,
   patlen = patlen,
@@ -94,7 +94,7 @@ elseif mvav and mvav ~= 0 then
 else
   path = pathlib.polypath(anchors)
 end
-path = pathlib.subpath(path, 0, obj.track1 / 100)
+path = pathlib.subpathf(path, 0, obj.track1 / 100)
 local conf = {
   width = obj.track2 * (1 + edgewidthfc / 100 * 2)
 }
@@ -133,7 +133,7 @@ elseif mvav and mvav ~= 0 then
 else
   path = pathlib.polypath(anchors)
 end
-path = pathlib.subpath(path, 0, obj.track1 / 100)
+path = pathlib.subpathf(path, 0, obj.track1 / 100)
 local conf = {
   width = obj.track2 * (1 + edgewidthfc / 100 * 2)
 }

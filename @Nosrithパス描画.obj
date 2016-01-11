@@ -2,14 +2,14 @@
 --track0:始点 %,0,100,0
 --track1:終点 %,0,100,100
 --track2:太さ px,0,100,4
---dialog:パスID,pathid="パス*";色/col,color=0x000000;
+--dialog:パスID,pathid="パス0";色/col,color=0x000000;
 
 local pathlib = require("path")
 local path = pathlib.getregpath(pathid)
 if path and obj.track0 < obj.track1 then
   obj.setoption("drawtarget","tempbuffer", obj.screen_w, obj.screen_h)
   obj.load("figure", "四角形", color, 2)
-  path = pathlib.subpath(path, obj.track0 / 100, obj.track1 / 100)
+  path = pathlib.subpathf(path, obj.track0 / 100, obj.track1 / 100)
   path:draw(obj, {width = obj.track2})
   obj.load("tempbuffer")
 end
@@ -20,14 +20,14 @@ end
 --track1:終点 %,0,100,100
 --track2:太さ px,0,100,4
 --track3:間隔 px,0,1000,20
---dialog:パスID,pathid="パス*";色/col,color=0x000000;塗り長さ %,filllenfc=50;
+--dialog:パスID,pathid="パス0";色/col,color=0x000000;塗り長さ %,filllenfc=50;
 
 local pathlib = require("path")
 local path = pathlib.getregpath(pathid)
 if path and obj.track0 < obj.track1 then
   obj.setoption("drawtarget","tempbuffer", obj.screen_w, obj.screen_h)
   obj.load("figure", "四角形", color, 2)
-  path = pathlib.subpath(path, obj.track0 / 100, obj.track1 / 100)
+  path = pathlib.subpathf(path, obj.track0 / 100, obj.track1 / 100)
   path:draw(obj, {
     width = obj.track2, 
     patlen = obj.track3,
@@ -42,14 +42,14 @@ end
 --track1:終点 %,0,100,100
 --track2:太さ px,0,100,4
 --track3:エッジ太さ %,0,100,15
---dialog:パスID,pathid="パス*";色/col,color=0x000000;中抜き濃さ %,offcolfc=10;
+--dialog:パスID,pathid="パス0";色/col,color=0x000000;中抜き濃さ %,offcolfc=10;
 
 local pathlib = require("path")
 local path = pathlib.getregpath(pathid)
 if path and obj.track0 < obj.track1 then
   obj.setoption("drawtarget","tempbuffer", obj.screen_w, obj.screen_h)
   obj.load("figure", "四角形", color, 2)
-  path = pathlib.subpath(path, obj.track0 / 100, obj.track1 / 100)
+  path = pathlib.subpathf(path, obj.track0 / 100, obj.track1 / 100)
   path:draw(obj, {
     width = obj.track2 * (1 + obj.track3 / 100)
   })
@@ -68,14 +68,14 @@ end
 --track1:終点 %,0,100,100
 --track2:太さ px,0,100,4
 --track3:間隔 px,0,1000,40
---dialog:パスID,pathid="パス*";色/col,color=0x000000;エッジ太さ %,edgewidthfc=15;中抜き濃さ %,offcolfc=10;塗り長さ %,filllenfc=50;
+--dialog:パスID,pathid="パス0";色/col,color=0x000000;エッジ太さ %,edgewidthfc=15;中抜き濃さ %,offcolfc=10;塗り長さ %,filllenfc=50;
 
 local pathlib = require("path")
 local path = pathlib.getregpath(pathid)
 if path and obj.track0 < obj.track1 then
   obj.setoption("drawtarget","tempbuffer", obj.screen_w, obj.screen_h)
   obj.load("figure", "四角形", color, 2)
-  path = pathlib.subpath(path, obj.track0 / 100, obj.track1 / 100)
+  path = pathlib.subpathf(path, obj.track0 / 100, obj.track1 / 100)
   path:draw(obj, {
     width = obj.track2 * (1 + edgewidthfc / 100)
   })

@@ -38,9 +38,11 @@ function polypath(anchors)
   return Path:new(newancs)
 end
 
-function subpath(path, beginf, endf)
-  local beginpos = path.len * beginf
-  local endpos = path.len * endf
+function subpathf(path, beginf, endf)
+  return subpath(path, path.len * beginf, path.len * endf)
+end
+
+function subpath(path, beginpos, endpos)
   local newancs = {}
   local pos = 0
   local contains = false
@@ -76,6 +78,10 @@ function subpath(path, beginf, endf)
   newancs[#newancs + 1] = sy1 + plen * sdy / slen
   return Path:new(newancs)
 end  
+
+function segpath(path, i)
+  return Path:new({path:getsegpt(i)})
+end
 
 -- Bezier path
 
@@ -115,15 +121,15 @@ end
 
 -- Average path
 
-function mvavpath(anchors, radius)
-  if radius == 0 then return polypath(anchors) end
+function mvavpath(anchors, bandwidth)
+  if bandwidth == 0 then return polypath(anchors) end
   local numanc = #anchors / 2
   local len = getlen(anchors)
   local newancs = {}
   for i = 0, math.ceil(len) do
     local gpos = math.min(i, len)
-    local beginpos = gpos - radius
-    local endpos = gpos + radius
+    local beginpos = gpos - bandwidth / 2
+    local endpos = gpos + bandwidth / 2
     local sumx, sumy = 0, 0
     local pos = 0
     for i = 1, numanc - 1 do
@@ -143,8 +149,8 @@ function mvavpath(anchors, radius)
         pos = pos + slen
       end
     end
-    newancs[#newancs + 1] = sumx / (radius * 2)
-    newancs[#newancs + 1] = sumy / (radius * 2)
+    newancs[#newancs + 1] = sumx / bandwidth
+    newancs[#newancs + 1] = sumy / bandwidth
   end
   return Path:new(newancs)
 end
@@ -174,12 +180,15 @@ function Path:getpt(frac)
   local pos = 0, sx1, sy1, sx2, sy2, slen, sdx, sdy
   for i = 1, self.numanc - 1 do
     sx1, sy1, sx2, sy2 = self:getsegpt(i)
+    slen0, sdx0, sdy0 = slen, sdx, sdy
     slen, sdx, sdy = getd(sx1, sy1, sx2, sy2)
+    if slen == 0 then slen, sdx, sdy = slen0, sdx0, sdy0 end
     if pos + slen >= tarpos then break end
     pos = pos + slen
   end
   local plen = tarpos - pos
-  return sx1 + plen * sdx / slen, sy1 + plen * sdy / slen, sdx, sdy
+  local sfx, sfy = sdx / slen, sdy / slen
+  return sx1 + plen * sfx, sy1 + plen * sfy, sfx, sfy
 end
 
 function Path:draw(obj, conf)
@@ -274,6 +283,40 @@ function Path:draw(obj, conf)
   end
   return self
 end
+
+function Path:dump(obj, label, conf)
+  conf = conf or {}
+  local color = conf.color or 0xffffff
+  local width = conf.width or 2
+
+  obj.load("figure", "lŠpŒ`", color, 2)
+  obj.ox, obj.oy = -obj.getvalue("x"), -obj.getvalue("y")
+  self:draw(obj, {width = width})
+
+  local x, y, dx, dy = self:getpt(1)
+  local angle = math.deg(math.atan2(dx, -dy))
+  obj.load("figure", "OŠpŒ`", color, width * 7)
+  obj.ox = x - obj.getvalue("x")
+  obj.oy = y - obj.getvalue("y")
+  obj.rz = angle
+  obj.draw()
+
+  obj.setfont("MS UI Gothic", 18, 2)
+  obj.load("text", label)
+  x, y, dx, dy = self:getpt(0)
+  angle = math.deg(math.atan2(dy, dx))
+  if angle >= -90 and angle < 90 then
+    obj.ox = x - obj.getvalue("x") + dy * 12
+    obj.oy = y - obj.getvalue("y") - dx * 12
+    obj.rz = angle
+  else
+    obj.ox = x - obj.getvalue("x") - dy * 12
+    obj.oy = y - obj.getvalue("y") + dx * 12
+    obj.rz = angle - 180
+  end
+  obj.draw()
+end
+
 
 -- Register
 

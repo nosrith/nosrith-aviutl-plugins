@@ -1,0 +1,57 @@
+@ベジエ曲線
+--check0:パスを表示,1
+--dialog:パスID,pathid="パス0*";参照パスID,refid="パス0"
+
+local pathlib = require("path")
+local path = pathlib.getregpath(refid)
+if not path then return end
+
+path = pathlib.bezierpath(path.ancs)
+pathlib.register(pathid, path)
+
+if obj.check0 then
+  path:dump(obj, pathid)
+else
+  obj.load("figure", "四角形", color, 2)
+  obj.draw(0, 0, 0, 1, 0, 0, 0, 0)
+end
+
+
+@移動平均曲線
+--track0:幅 px,0,1000,50
+--check0:パスを表示,1
+--dialog:パスID,pathid="パス0*";参照パスID,refid="パス0"
+
+local pathlib = require("path")
+local path = pathlib.getregpath(refid)
+if not path then return end
+
+path = pathlib.mvavpath(path.ancs, obj.track0)
+pathlib.register(pathid, path)
+
+if obj.check0 then
+  path:dump(obj, pathid)
+else
+  obj.load("figure", "四角形", color, 2)
+  obj.draw(0, 0, 0, 1, 0, 0, 0, 0)
+end
+
+
+@位置シフト
+--track0:シフト px,-1000,1000,0
+--check0:パスを表示,1
+--dialog:パスID,pathid="パス0*";参照パスID,refid="パス0"
+
+local pathlib = require("path")
+local path = pathlib.getregpath(refid)
+if not path then return end
+
+path = pathlib.subpath(path, obj.track0, path.len + obj.track0)
+pathlib.register(pathid, path)
+
+if obj.check0 then
+  path:dump(obj, pathid)
+else
+  obj.load("figure", "四角形", color, 2)
+  obj.draw(0, 0, 0, 1, 0, 0, 0, 0)
+end

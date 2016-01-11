@@ -1,18 +1,50 @@
+@画像(バー選択)
+--track0:パスID,0,1000,0,1
+--track1:位置 %,0,100,0
+--track2:パス方向,0,1,0,1
+--file:
+
+local pathlib = require("path")
+local path
+
+path = pathlib.getregpath(string.format("%d", obj.track0))
+if not path then
+  path = pathlib.getregpath(string.format("パス%d", obj.track0))
+end
+if not path then return end
+
+local x, y, dx, dy = path:getpt(obj.track1 / 100)
+local angle = obj.track2 == 1 and math.deg(math.atan2(dx, -dy)) or 0
+obj.load("image", file)
+obj.ox, obj.oy, obj.rz = x, y, angle
+
+
+@画像
+--track0:位置 %,0,100,0
+--dialog:パスID,pathid="パス0";ファイル,fpath="";色/col,color=0xffffff;パス方向を向く/chk,rotate=0
+
+local pathlib = require("path")
+local path = pathlib.getregpath(pathid)
+if not path then return end
+
+local x, y, dx, dy = path:getpt(obj.track0 / 100)
+local angle = rotate == 1 and math.deg(math.atan2(dx, -dy)) or 0
+obj.load("image", fpath)
+obj.ox, obj.oy, obj.rz = x, y, angle
+
+
 @図形
 --track0:位置 %,0,100,0
 --track1:大きさ px,0,1000,100
 --track2:縦横比 %,-100,100,0
---dialog:パスID,pathid="パス*";図形/fig,shape="三角形";色/col,color=0xffffff;進行方向を向く/chk,rotate=1
+--dialog:パスID,pathid="パス0";図形/fig,shape="三角形";色/col,color=0xffffff;パス方向を向く/chk,rotate=0
 
 local pathlib = require("path")
 local path = pathlib.getregpath(pathid)
-if path then
-  local x, y, dx, dy = path:getpt(obj.track0 / 100)
-  local angle = rotate == 1 and math.deg(math.atan2(dx, -dy)) or 0
-  obj.load("figure", shape, color, obj.track1)
-  obj.aspect = obj.track2 / 100
-  obj.effect()
-  obj.draw(x, y, 0, 1, 1, 0, 0, angle)
-  -- obj.ox, obj.oy, obj.rz = x, y, angle
-end
+if not path then return end
 
+local x, y, dx, dy = path:getpt(obj.track0 / 100)
+local angle = rotate == 1 and math.deg(math.atan2(dx, -dy)) or 0
+obj.load("figure", shape, color, obj.track1)
+obj.ox, obj.oy, obj.rz = x, y, angle
+obj.aspect = obj.track2 / 100
