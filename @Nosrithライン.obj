@@ -9,7 +9,7 @@ local pathlib = require("path")
 
 local numanc = obj.track0
 obj.setanchor("anchors", numanc, "line")
-obj.setoption("dst", "tmp", obj.screen_w, obj.screen_h)
+obj.setoption("drawtarget","tempbuffer", obj.screen_w, obj.screen_h)
 
 obj.load("figure", "éläpå`", color, 2)
 local path
@@ -20,13 +20,14 @@ elseif mvav and mvav ~= 0 then
 else
   path = pathlib.polypath(anchors)
 end
-path = pathlib.subpath(path, 0, obj.track1 / 100)
+path = pathlib.subpathf(path, 0, obj.track1 / 100)
 local conf = {
   width = obj.track2,
   patlen = obj.track3,
   filllenf = filllenfc / 100
 }
-pathlib.draw(obj, path, conf)
+
+path:draw(obj, conf)
 
 obj.load("tempbuffer")
 
@@ -42,7 +43,7 @@ local pathlib = require("path")
 
 local numanc = obj.track0
 obj.setanchor("anchors", numanc, "line")
-obj.setoption("dst", "tmp", obj.screen_w, obj.screen_h)
+obj.setoption("drawtarget","tempbuffer", obj.screen_w, obj.screen_h)
 
 obj.load("figure", "éläpå`", color, 2)
 local path
@@ -53,21 +54,20 @@ elseif mvav and mvav ~= 0 then
 else
   path = pathlib.polypath(anchors)
 end
-path = pathlib.subpath(path, 0, obj.track1 / 100)
+path = pathlib.subpathf(path, 0, obj.track1 / 100)
 local conf = {
   width = obj.track2,
   patlen = patlen,
   filllenf = filllenfc / 100
 }
-path = pathlib.draw(obj, path, conf)
+path = path:draw(obj, conf)
 
 if obj.track1 > 0 then
   local hsize = obj.track2 * obj.track3 / 100
-  local sx1, sy1, sx2, sy2 = pathlib.getseg(path.ancs, path.numanc - 1)
-  local slen, sdx, sdy = pathlib.getd(sx1, sy1, sx2, sy2)
-  local angle = math.deg(math.atan2(sdx, -sdy))
+  local x, y, dx, dy = path:getpt(1)
+  local angle = math.deg(math.atan2(dx, -dy))
   obj.load("figure", "éOäpå`", color, hsize)
-  obj.draw(sx2, sy2, 0, 1, 1, 0, 0, angle)
+  obj.draw(x, y, 0, 1, 1, 0, 0, angle)
 end
 
 obj.load("tempbuffer")
@@ -83,7 +83,7 @@ local pathlib = require("path")
 
 local numanc = obj.track0
 obj.setanchor("anchors", numanc, "line")
-obj.setoption("dst", "tmp", obj.screen_w, obj.screen_h)
+obj.setoption("drawtarget","tempbuffer", obj.screen_w, obj.screen_h)
 
 obj.load("figure", "éläpå`", color, 2)
 local path
@@ -94,11 +94,11 @@ elseif mvav and mvav ~= 0 then
 else
   path = pathlib.polypath(anchors)
 end
-path = pathlib.subpath(path, 0, obj.track1 / 100)
+path = pathlib.subpathf(path, 0, obj.track1 / 100)
 local conf = {
   width = obj.track2 * (1 + edgewidthfc / 100 * 2)
 }
-pathlib.draw(obj, path, conf)
+path:draw(obj, conf)
 
 local h, s, v = HSV(color)
 s = s * offcolfc / 100
@@ -107,7 +107,7 @@ obj.load("figure", "éläpå`", HSV(h, s, v), 2)
 conf = {
   width = obj.track2 * (1 - edgewidthfc / 100)
 }
-pathlib.draw(obj, path, conf)
+path:draw(obj, conf)
 
 obj.load("tempbuffer")
 
@@ -122,7 +122,7 @@ local pathlib = require("path")
 
 local numanc = obj.track0
 obj.setanchor("anchors", numanc, "line")
-obj.setoption("dst", "tmp", obj.screen_w, obj.screen_h)
+obj.setoption("drawtarget","tempbuffer", obj.screen_w, obj.screen_h)
 
 obj.load("figure", "éläpå`", color, 2)
 local path
@@ -133,11 +133,11 @@ elseif mvav and mvav ~= 0 then
 else
   path = pathlib.polypath(anchors)
 end
-path = pathlib.subpath(path, 0, obj.track1 / 100)
+path = pathlib.subpathf(path, 0, obj.track1 / 100)
 local conf = {
   width = obj.track2 * (1 + edgewidthfc / 100 * 2)
 }
-pathlib.draw(obj, path, conf)
+path:draw(obj, conf)
 
 local h, s, v = HSV(color)
 s = s * offcolfc / 100
@@ -149,6 +149,6 @@ conf = {
   filllenf = 1 - filllenfc / 100,  
   pposf = filllenfc / 100,
 }
-pathlib.draw(obj, path, conf)
+path:draw(obj, conf)
 
 obj.load("tempbuffer")

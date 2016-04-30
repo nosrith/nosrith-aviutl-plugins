@@ -1,0 +1,76 @@
+@折れ線
+--check0:パスを表示,1
+--dialog:パスID,pathid="パス0";
+
+local pathlib = require("path")
+local numsec = obj.getoption("section_num")
+local anchors = {}
+for i = 0, numsec - 1 do
+  anchors[#anchors + 1] = obj.getvalue("x", 0, i)
+  anchors[#anchors + 1] = obj.getvalue("y", 0, i)
+end
+anchors[#anchors + 1] = obj.getvalue("x", 0, -1)
+anchors[#anchors + 1] = obj.getvalue("y", 0, -1)
+
+local path = pathlib.polypath(anchors)
+pathlib.register(pathid, path)
+
+if obj.check0 then
+  require("logging"); logging.start("nosrith.log")
+  xpcall(function() path:dump(obj, pathid) end, function(err) logging.log(err) end)
+  logging.stop()
+else
+  obj.load("figure", "四角形", color, 2)
+  obj.draw(0, 0, 0, 1, 0, 0, 0, 0)
+end
+
+
+@ベジエ曲線
+--check0:パスを表示,1
+--dialog:パスID,pathid="パス0";
+
+local pathlib = require("path")
+local numsec = obj.getoption("section_num")
+local anchors = {}
+for i = 0, numsec - 1 do
+  anchors[#anchors + 1] = obj.getvalue("x", 0, i)
+  anchors[#anchors + 1] = obj.getvalue("y", 0, i)
+end
+anchors[#anchors + 1] = obj.getvalue("x", 0, -1)
+anchors[#anchors + 1] = obj.getvalue("y", 0, -1)
+
+local path = pathlib.bezierpath(anchors)
+pathlib.register(pathid, path)
+
+if obj.check0 then
+  path:dump(obj, pathid)
+else
+  obj.load("figure", "四角形", color, 2)
+  obj.draw(0, 0, 0, 1, 0, 0, 0, 0)
+end
+
+
+@移動平均曲線
+--track0:幅 px,0,1000,50
+--check0:パスを表示,1
+--dialog:パスID,pathid="パス0";
+
+local pathlib = require("path")
+local numsec = obj.getoption("section_num")
+local anchors = {}
+for i = 0, numsec - 1 do
+  anchors[#anchors + 1] = obj.getvalue("x", 0, i)
+  anchors[#anchors + 1] = obj.getvalue("y", 0, i)
+end
+anchors[#anchors + 1] = obj.getvalue("x", 0, -1)
+anchors[#anchors + 1] = obj.getvalue("y", 0, -1)
+
+local path = pathlib.mvavpath(anchors, obj.track0)
+pathlib.register(pathid, path)
+
+if obj.check0 then
+  path:dump(obj, pathid)
+else
+  obj.load("figure", "四角形", color, 2)
+  obj.draw(0, 0, 0, 1, 0, 0, 0, 0)
+end

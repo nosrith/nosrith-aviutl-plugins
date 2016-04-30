@@ -16,7 +16,7 @@ function log(...)
   local t = {...}
   for i, v in ipairs(t) do
     if i > 1 then f:write(", ") end
-    f:write(v)
+    f:write(tostring(v))
   end
   f:write("\n")
   f:flush()
